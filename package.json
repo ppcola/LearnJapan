@@ -1,0 +1,34 @@
+{
+  "name": "icerjekylljapansite",
+  "version": "1.0.0",
+  "description": "A simple Jekyll site full of Japanese Learning Memo from Icer.",
+  "main": "gulpfile.js",
+  "scripts": {
+    "ionic": "jekyll b --config _config.yml --destination ionic/src/assets/site/",
+    "dev": "jekyll s --config _config.yml,_config.dev.yml",
+    "devi": "jekyll s -i --config _config.yml,_config.dev.yml"
+  },
+  "keywords": [
+    "frontend",
+    "blog",
+    "css",
+    "stylus",
+    "gulp",
+    "jekyll",
+    "js"
+  ],
+  "author": "wizicer",
+  "license": "MIT",
+  "devDependencies": {
+    "autoprefixer-stylus": "^0.4.0",
+    "browser-sync": "^1.9.0",
+    "event-stream": "^3.3.4",
+    "gulp": "^3.8.10",
+    "gulp-concat": "^2.4.3",
+    "gulp-plumber": "^0.6.6",
+    "gulp-stylus": "^1.3.7",
+    "gulp-typescript": "^3.1.4",
+    "gulp-uglify": "^1.0.2",
+    "typescript": "^2.1.6"
+  }
+}

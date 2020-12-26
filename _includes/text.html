@@ -1,0 +1,326 @@
+{% include base.html %}
+<style>
+.tags {
+  position: fixed;
+  top: 15px;
+  right: 5px;
+  z-index: 10;
+}
+.lesson {
+  display: none;
+}
+.lesson.active {
+  display: inherit;
+}
+.japan.collapse {
+  display: none;
+}
+.japan.hideruby ruby rt {
+  color: white;
+}
+.japan.hideruby ruby rt:hover {
+  color: inherit;
+}
+.lesson.middle-lesson ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+.lesson.middle-lesson ul li {
+  text-indent: 2em;
+}
+.lesson.middle-lesson .conversation ul li {
+  text-indent: -3em;
+  padding-left: 3em;
+}
+</style>
+<style>
+{% capture scss %}
+@media only screen and (max-width: 800px) {
+  .wordtable { 
+    table, thead, tbody, th, tr { 
+      display: block;
+    }
+ 
+    thead tr { 
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+
+    tr {
+      border: 1px solid #eee; 
+    }
+  
+    td { 
+      border: none !important;
+      white-space: normal;
+      text-align: left;
+      display: inline-block;
+
+      &:nth-child(2) {
+        &:before { content: "("; }
+        &:after { content: ")"; }
+      }
+
+      &:nth-child(3):not(:blank) {
+        &:before { content: "["; }
+        &:after { content: "]"; }
+      }
+
+      &:nth-child(3):blank {
+        display: none;
+      }
+
+      &:nth-child(4) {
+        font-weight: bold;
+      }
+    }
+  }
+}
+{% endcapture %}
+{{scss | scssify }}
+</style>
+<div class="flowtags">
+  {% if page.lesson %}
+  <a class="link btn btn-success" href="lesson{{page.lesson | minus: 1}}.html">前</a>
+  <a class="link btn btn-success" href="lesson{{page.lesson | plus: 1}}.html">后</a>
+  {% endif %}
+  {% for num in page.lessons %}
+    <a class="toggle-lesson tl{{num}} btn btn-info" data-lesson="{{num}}" href="#">{{num}}</a>
+  {% endfor %}
+  <a class="toggle-ruby btn btn-warning" href="#">注音</a>
+  <a class="toggle-japan btn btn-warning" href="#">原文</a>
+  <br />
+  <audio id="player" controls>
+  </audio>
+</div>
+<div class="tags">
+  <a class="player-shortback btn btn-primary" href="#">短退</a>
+  <a class="player-play btn btn-success" href="#">播放</a>
+  <a class="player-slow btn btn-primary" href="#">慢速</a>
+  <a class="player-normal btn btn-primary" href="#">常速</a>
+</div>
+<script>
+$(document).ready(function() {
+  var player = $('#player').get(0);
+  function openTab(tabName) {
+    $('.lesson').removeClass('active');
+    $('.toggle-lesson').removeClass('active');
+    $('.t'+tabName).addClass("active");
+    $('#'+tabName).addClass("active");
+    var level = "{{page.category}}";
+    level = level == "middleclass" ? "m" : "l";
+    if (tabName != 'l0') {
+      var lnum = tabName.slice(1);
+      player.src = "{{ basepath }}/assets/audio/lesson/" + level + lnum + ".mp3";
+      player.load();
+    }
+    curlessonquizdata = lessonquizdata[tabName];
+    if (tabName == 'l0') {
+      $('#wordrecite').hide();
+      $('button.toggle-start').hide();
+    } else {
+      $('#wordrecite').show();
+      $('button.toggle-start').show();
+    }
+  }
+  $('a.player-shortback').on('click', function(e) {
+    e.preventDefault();
+    player.currentTime -= 2;
+  });
+  $('a.player-slow').on('click', function(e) {
+    e.preventDefault();
+    player.playbackRate = 0.8;
+  });
+  $('a.player-normal').on('click', function(e) {
+    e.preventDefault();
+    player.playbackRate = 1;
+  });
+  $('a.player-play').on('click', function(e) {
+    e.preventDefault();
+    if (player.paused)
+      player.play();
+    else
+      player.pause();
+  });
+  $(player).on('play pause', function() { $('a.player-play').text(player.paused ? '播放' : '暂停'); });
+  $('a.toggle-lesson').on('click', function(e) {
+    e.preventDefault();
+    openTab("l"+$(this).attr('data-lesson'));
+  });
+  $('a.toggle-japan').on('click', function(e) {
+    e.preventDefault();
+    $('.japan').toggleClass("collapse");
+  });
+  $('a.toggle-ruby').on('click', function(e) {
+    e.preventDefault();
+    $('.japan').toggleClass("hideruby");
+  });
+
+  $('li').add('h1').add('h2').add('p').add('td').each(function() {
+    $(this).html(japanruby($(this).html()));
+  });
+
+  {% if page.lesson %}
+    openTab("l{{page.lesson}}");
+  {% else %}
+  openTab("l0");
+  {% endif %}
+});
+</script>
+
+<!--translation function-->
+<script>
+$(document).ready(function() {
+  $('.lesson>:not(.japan) li').each(function() {
+    var jp = $(this).closest('.lesson').find('.japan');
+    var listno = $(this).parentsUntil('.lesson').last().index() - 1;
+    var itemno = $(this).index();
+    var citem = jp.children().eq(listno);
+    if (citem.prop('tagName').toLowerCase() != 'ul') citem = citem.find('ul');
+    citem = citem.children().eq(itemno);
+    if (citem.length == 0) console.log($(this).text() + " not found.");
+
+    var t = citem.contents().clone();
+    t = t.unwrap().wrap('<div class="japan translation well"/>').parent();
+    t.find('rt').remove();
+
+    var button = $('<button class="btn btn-xs"><i class="fa fa-pencil-square-o"></i>翻译</button>')
+    button.on('click', function () {
+      $(this).parent().find('div.input').toggleClass('active');
+    });
+    var formdiv = $('<div class="form-horizontal input"></div>')
+    var inputdiv = $('<div class="form-group"></div>')
+    formdiv.append(inputdiv);
+    var input = $('<input type="textbox" class="col-xs-10 col-md-11 input-sm" />')
+    var inputbutton = $('<button class="btn btn-sm col-xs-2 col-md-1"><i class="fa fa-exchange"></i>对照</button>')
+    inputbutton.on('click', function () {
+      $(this).parent().parent().parent().find('.japan.translation').toggleClass('active');
+    });
+    inputdiv.append(input);
+    inputdiv.append(inputbutton);
+
+    $(this).append(button);
+    $(this).append(formdiv);
+    $(this).append(t);
+  });
+  $('li:contains("-")').hide();
+  $('.lesson>:not(.japan) li button').hide();
+  $('.starttranslate').on('click', function(){
+    $(this).hide();
+    $(this).closest('.lesson').find('>:not(.japan) li button').show();
+  });
+});
+
+</script>
+<style>
+div.input.active {
+  display: block;
+}
+div.input {
+  display: none;
+}
+div.translation.active {
+  display: inherit;
+}
+div.translation {
+  display: none;
+}
+</style>
+
+<!--scroll hide tag, get from: http://jsfiddle.net/mariusc23/s6mLJ/31/-->
+<style>
+.nav-up {
+    top: -180px !important;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+  // Hide Header on on scroll down
+  var didScroll;
+  var lastScrollTop = 0;
+  var delta = 5;
+  var navbarHeight = $('.tags').outerHeight();
+
+  $(window).scroll(function(event){
+      didScroll = true;
+  });
+
+  setInterval(function() {
+      if (didScroll) {
+          hasScrolled();
+          didScroll = false;
+      }
+  }, 250);
+
+  function hasScrolled() {
+      var st = $(this).scrollTop();
+      
+      // Make sure they scroll more than delta
+      if(Math.abs(lastScrollTop - st) <= delta)
+          return;
+      
+      // If they scrolled down and are past the navbar, add class .nav-up.
+      // This is necessary so you never see what is "behind" the navbar.
+      if (st > lastScrollTop && st > navbarHeight){
+          // Scroll Down
+          $('.tags').addClass('nav-up');
+      } else {
+          // Scroll Up
+          if(st + $(window).height() < $(document).height()) {
+              $('.tags').removeClass('nav-up');
+          }
+      }
+      
+      lastScrollTop = st;
+  }});
+</script>
+
+{% if page.lessons %}
+{% assign lessons = page.lessons %}
+{% else %}
+{% assign lessons = page.lesson | split: "|" %}
+{% endif %}
+{% capture allcontent %}
+{% for lnum in lessons %}
+{% if page.category == 'middleclass' %}
+{% assign id = lnum | prepend: 'm' %}
+{% assign lesson = site.data.mlessons[id] %}
+{% capture wordaudio %}{{ basepath }}/assets/audio/word/{{id}}.mp3{% endcapture %}
+{% include mlesson.html num=lnum lesson=lesson wordaudio=wordaudio %}
+{% else %}
+{% assign id = lnum | prepend: 'l' %}
+{% assign lesson = site.data.lessons[id] %}
+{% capture wordaudio %}{{ basepath }}/assets/audio/word/{{id}}.mp3{% endcapture %}
+{% include lesson.html num=lnum lesson=lesson wordaudio=wordaudio %}
+{% endif %}
+{% endfor %}
+{% endcapture %}
+{{ allcontent | markdownify}}
+
+<button class="toggle-start btn btn-primary">开始记单词</button>
+{% include wordrecite.md %}
+<script>
+var lessonquizdata = {};
+var curlessonquizdata;
+$(document).ready(function() {
+  $('button.toggle-start').on('click', function(e) {
+    e.preventDefault();
+    var quizdata = ((lessonquizdata && lessonquizdata["l{{page.lesson}}"])
+      || (curlessonquizdata)
+      || table.rows({filter: 'applied'}).data().map(function(p) { return { kana: p[0], kanji: p[1], explain: p[3], display: p[4], pos: p[2], rid: p[5] + '|' + p[6]}}))
+      .map(function(p) {
+        p.kana = japanruby(p.kana);
+        p.purekana = p.kana.replace(/[^\u3040-\u309f\u30a0-\u30ff]/g, "");
+        p.display = japanruby(p.display);
+        var desc = "<span class='japan'>" + (p.kanji == "&nbsp;" ? p.kana : p.display + "<br />" + p.kana) + "</span>";
+        desc += "<span class='card-pos'>[" + p.pos + "]</span>";
+        desc += "<a href='#' class='read' data-read='"+p.purekana+"'>[读]</a>";
+        var tip = "<span class='card-explain'>" + p.explain + "</span>";
+        tip += "<span class='card-pos'>[" + p.pos.slice(0,1) + "]</span>";
+        return { tip: tip, desc: desc, read: p.purekana, rid: p.rid }});
+    (new easyquiz()).start(quizdata);
+  });
+});
+</script>

@@ -1,0 +1,190 @@
+﻿<ion-header>
+
+  <ion-navbar>
+    <audio #audioplayer [src]="playsrc" controls="false" [hidden]="'false'"></audio>
+    <ion-title *ngIf="playerenable" [@enterAnimation]="playerenable">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <button small ion-button color="secondary" (click)="backward(2)">短退</button>
+            <button small ion-button (click)="play()" *ngIf="!playing"><ion-icon name="play"></ion-icon></button>
+            <button small ion-button (click)="pause()" *ngIf="playing"><ion-icon name="pause"></ion-icon></button>
+            <button small ion-button color="secondary" (click)="setPlaybackRate(0.8)">慢速</button>
+            <button small ion-button color="secondary" (click)="setPlaybackRate(1)">常速</button>
+          </ion-col>
+          <ion-col>
+            <ion-range [(ngModel)]="playprogress" [max]="playprogressmax" color="primary" (ionChange)="progressChange($event)"></ion-range>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-title>
+    <ion-title *ngIf="!playerenable && item.words">{{ item.lesson }}</ion-title>
+    <ion-title *ngIf="!playerenable && item.word" [innerHTML]="item.word | japanruby"></ion-title>
+    <ion-title *ngIf="!playerenable && item.expression" [innerHTML]="item.expression"></ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content>
+
+  <ion-list *ngIf="item.title">
+    <ion-item-group>
+      <ion-item-divider color="secondary">
+        <h2 [innerHTML]="item.title | japanruby"></h2>
+        <button ion-button item-right (click)="startplay(item, 'lesson')"><ion-icon name="play"></ion-icon></button>
+      </ion-item-divider>
+      <ion-item-divider color="light">
+        基本课文
+      </ion-item-divider>
+      <button ion-item *ngFor="let t of item.basic4;let i = index">
+        <p class="line-break">
+          <span>{{i + 1}}.</span>
+          <span [innerHTML]="t | japanruby"></span>
+        </p>
+      </button>
+      <ion-item-divider color="light">
+      </ion-item-divider>
+      <button ion-item *ngFor="let t of item.basicc">
+        <p [innerHTML]="t | japanruby" class="line-break"></p>
+      </button>
+    </ion-item-group>
+    <ion-item-group>
+      <ion-item-divider color="light">
+        <h3 [innerHTML]="item.contitle | japanruby"></h3>
+      </ion-item-divider>
+      <ng-container *ngFor="let t of item.context">
+        <button ion-item *ngIf="t != '---'">
+          <p [innerHTML]="t | japanruby" class="line-break"></p>
+        </button>
+        <ion-item-divider color="light" *ngIf="t == '---'">
+        </ion-item-divider>
+      </ng-container>
+      <ion-item-divider color="light">
+        语法
+      </ion-item-divider>
+      <button ion-item *ngFor="let g of item.grammar" (click)="openItem(g)">
+        <h2 [innerHTML]="g.expression"></h2>
+        <p [innerHTML]="g.explanation | newline" class="line-break"></p>
+        <p item-right [innerHTML]="g.shortexplain"></p>
+      </button>
+    </ion-item-group>
+    <ion-item-group>
+      <ion-item-divider color="light">
+        <h2>单词</h2>
+        <button ion-button item-right (click)="startplay(item, 'word')"><ion-icon name="play"></ion-icon></button>
+      </ion-item-divider>
+      <ion-item-sliding *ngFor="let word of item.words">
+        <button ion-item (click)="openItem(word)">
+          <h2>
+            <span [innerHTML]="word.kana | japanruby"></span>
+            [{{word.pos}}]
+          </h2>
+          <p [innerHTML]="word.desc | japanruby"></p>
+          <p item-right [innerHTML]="word.word | japanruby"></p>
+        </button>
+      </ion-item-sliding>
+    </ion-item-group>
+  </ion-list>
+
+  <ion-list *ngIf="item.texttitle">
+    <ion-item-group>
+      <ion-item-divider color="light">
+        <h2 [innerHTML]="item.contitle | japanruby"></h2>
+      </ion-item-divider>
+      <button ion-item *ngFor="let t of item.conversation">
+        <p [innerHTML]="t | japanruby" class="line-break"></p>
+      </button>
+    </ion-item-group>
+    <ion-item-group>
+      <ion-item-divider color="light">
+        <h3 [innerHTML]="item.texttitle | japanruby"></h3>
+      </ion-item-divider>
+      <button ion-item *ngFor="let t of item.text">
+        <p [innerHTML]="t | japanruby" class="line-break"></p>
+      </button>
+      <ion-item-divider color="light">
+        语法
+      </ion-item-divider>
+      <button ion-item *ngFor="let g of item.grammar" (click)="openItem(g)">
+        <h2 [innerHTML]="g.expression"></h2>
+        <p [innerHTML]="g.explanation | newline" class="line-break"></p>
+        <p item-right [innerHTML]="g.shortexplain"></p>
+      </button>
+    </ion-item-group>
+    <ion-item-group>
+      <ion-item-divider color="light">
+        单词
+      </ion-item-divider>
+      <ion-item-sliding *ngFor="let word of item.words">
+        <button ion-item (click)="openItem(word)">
+          <h2>
+            <span [innerHTML]="word.kana | japanruby"></span>
+            [{{word.pos}}]
+          </h2>
+          <p [innerHTML]="word.desc | japanruby"></p>
+          <p item-right [innerHTML]="word.word | japanruby"></p>
+        </button>
+      </ion-item-sliding>
+    </ion-item-group>
+  </ion-list>
+
+  <ion-list *ngIf="item.word">
+    <ion-item>
+      <ion-icon name='square' item-left></ion-icon>
+      <ion-note item-right>意思</ion-note>
+      <p [innerHTML]="item.desc"></p>
+    </ion-item>
+    <ion-item>
+      <ion-icon name='pricetag' item-left></ion-icon>
+      <ion-note item-right>词性</ion-note>
+      <p [innerHTML]="item.pos"></p>
+    </ion-item>
+    <ion-item>
+      <ion-icon name='quote' item-left></ion-icon>
+      <ion-note item-right>发音</ion-note>
+      <p [innerHTML]="item.kana | japanruby"></p>
+    </ion-item>
+    <ion-item>
+      <ion-icon name='bookmark' item-left></ion-icon>
+      <ion-note item-right>课本</ion-note>
+      <p [innerHTML]="item.lesson"></p>
+    </ion-item>
+    <ion-item-group>
+      <ion-item-divider color="light">选项</ion-item-divider>
+      <ion-item>
+        <ion-icon name='book' item-left></ion-icon>
+        <ion-label>已记住</ion-label>
+        <ion-toggle [(ngModel)]="remember" checked="false" (ionChange)="toggleRemember(item)"></ion-toggle>
+      </ion-item>
+    </ion-item-group>
+  </ion-list>
+
+  <ion-list *ngIf="item.expression">
+    <ion-item>
+      <ion-icon name='square' item-left></ion-icon>
+      <ion-note item-right>表达</ion-note>
+      <p [innerHTML]="item.expression"></p>
+    </ion-item>
+    <ion-item>
+      <ion-icon name='pricetag' item-left></ion-icon>
+      <ion-note item-right>简义</ion-note>
+      <p *ngIf="item.shortexplain" [innerHTML]="item.shortexplain"></p>
+      <p *ngIf="!item.shortexplain" color="light">&lt;暂无&gt;</p>
+    </ion-item>
+    <ion-card>
+      <ion-card-header>
+        <ion-icon name='quote' item-left></ion-icon>
+        解释
+      </ion-card-header>
+      <ion-card-content>
+        <p [innerHTML]="item.explanation | newline" break-line></p>
+      </ion-card-content>
+    </ion-card>
+    <ion-item>
+      <ion-icon name='bookmark' item-left></ion-icon>
+      <ion-note item-right>课本</ion-note>
+      <p [innerHTML]="item.lesson"></p>
+    </ion-item>
+  </ion-list>
+</ion-content>

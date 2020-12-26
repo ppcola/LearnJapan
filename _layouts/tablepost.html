@@ -1,0 +1,26 @@
+---
+layout: post
+---
+
+<div class="tags">
+  <a class="toggle-ruby btn btn-sm btn-info" href="#">注音</a>
+  <a class="toggle-japan btn btn-sm btn-success" href="#">原文</a>
+</div>
+
+{{ content }}
+
+<script>
+$(document).ready(function() {
+  $('td').each(function() {
+    $(this).html(japanruby($(this).html()));
+  });
+  $('a.toggle-japan').on('click', function(e) {
+    e.preventDefault();
+    $('.japan').toggleClass("hidekanji");
+  });
+  $('a.toggle-ruby').on('click', function(e) {
+    e.preventDefault();
+    $('.japan').toggleClass("hideruby");
+  });
+});
+</script>

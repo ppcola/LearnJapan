@@ -1,0 +1,39 @@
+---
+layout: page
+---
+
+{% include base.html %}
+<div class="jumbotron">
+  <h1>{{ site.title }}</h1>
+  <p>{{ site.description }}</p>
+</div>
+
+<div class="row">
+{% for tag in site.categories %}
+  {% assign cate = tag[0] %}
+  <div class="col-sm-4 col-md-3">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <a href="#tag[0]"></a>
+        {% if site.categorythemes[cate].name != null %}
+        <span class="tag-title" id="{{ tag[0] | slugify }}">{{site.categorythemes[cate].name}}</span>
+        {% else %}
+        <span class="tag-title" id="{{ tag[0] | slugify }}">{{ tag[0] | capitalize }}</span>
+        {% endif %}
+      </div>
+      <ul class="list-group">
+        {% assign pages_list = tag[1] %}
+        {% for post in pages_list reversed %}
+          {% if post.title != null %}
+          {% if group == null or group == post.group %}
+          <a class="list-group-item" href="{{ basepath }}{{ post.url }}">{{ post.title }}</a>
+          {% endif %}
+          {% endif %}
+        {% endfor %}
+        {% assign pages_list = nil %}
+        {% assign group = nil %}
+      </ul>
+    </div>
+  </div>
+{% endfor %}
+</div>

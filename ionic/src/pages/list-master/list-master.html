@@ -1,0 +1,17 @@
+﻿<ion-header>
+  <ion-navbar>
+    <ion-title>标日课程</ion-title>
+  </ion-navbar>
+</ion-header>
+<ion-content>
+  <ion-list>
+    <ion-item-sliding *ngFor="let group of groups">
+      <button ion-item (click)="openItem(group)">
+        <h2 *ngIf='group.title' [innerHTML]='group.title | japanruby'></h2>
+        <h2 *ngIf='group.texttitle'>{{group.texttitle}}</h2>
+        <p *ngIf='group.texttitle'>{{group.contitle}}</p>
+        <p item-right>{{group.lesson}}</p>
+      </button>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>

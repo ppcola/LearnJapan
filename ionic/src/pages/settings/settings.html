@@ -1,0 +1,76 @@
+﻿<!--
+  Generated template for the Settings page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>{{ pageTitle }}</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content>
+
+  <form [formGroup]="form" *ngIf="settingsReady">
+    <ion-list *ngIf="page == 'main'">
+      <!--<ion-item>
+        <ion-label>{{ 'SETTINGS_OPTION1' | translate }}</ion-label>
+        <ion-toggle formControlName="option1"></ion-toggle>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>{{ 'SETTINGS_OPTION2' | translate }}</ion-label>
+        <ion-input formControlName="option2"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>{{ 'SETTINGS_OPTION3' | translate }}</ion-label>
+        <ion-select formControlName="option3">
+          <ion-option value="1" checked="true">1</ion-option>
+          <ion-option value="2">2</ion-option>
+          <ion-option value="3">3</ion-option>
+        </ion-select>
+      </ion-item>-->
+
+      <button ion-item [navPush]="subSettings" [navParams]="profileSettings">
+        保存/载入学习记录
+      </button>
+
+      <button ion-item (click)="gotoLegacySite()">
+        回到老版本
+      </button>
+    </ion-list>
+
+    <ion-list *ngIf="page == 'profile'">
+      <button ion-item [navPush]="subSettings" [navParams]="importSettings">导入学习记录</button>
+      <button ion-item [navPush]="subSettings" [navParams]="exportSettings">导出学习记录</button>
+    </ion-list>
+
+    <ion-list *ngIf="page == 'import'">
+      <ion-item>
+        <ion-label class="line-break" stacked>导出或导入学习记录文件，用于备份或同步到其他设备。</ion-label>
+        <ion-textarea [(ngModel)]="records" [ngModelOptions]="{standalone: true}" rows="10"></ion-textarea>
+      </ion-item>
+      <button ion-item (click)="load()" color="danger">
+        写入记录
+      </button>
+    </ion-list>
+
+    <ion-list *ngIf="page == 'export'">
+      <button ion-item *ngIf="!records" (click)="getRecords()" color="primary">
+        生成记录
+      </button>
+      <ion-item *ngIf="records">
+        <ion-label class="line-break" stacked>导出或导入学习记录文件，用于备份或同步到其他设备。</ion-label>
+        <ion-textarea [ngModel]="records" [ngModelOptions]="{standalone: true}" rows="10"></ion-textarea>
+      </ion-item>
+      <button ion-item *ngIf="records" ngxClipboard [cbContent]="records" color="primary">
+        拷贝
+      </button>
+    </ion-list>
+  </form>
+
+</ion-content>

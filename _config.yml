@@ -1,0 +1,85 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely edit after that. If you find
+# yourself editing these this file very often, consider using Jekyll's data files
+# feature for the data you need to update frequently.
+#
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
+# Site settings
+# These are used to personalize your new site. If you look in the HTML files,
+# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
+# You can create any custom variable you would like, and they will be accessible
+# in the templates via {{ site.myvariable }}.
+title: 冰河标日学习日志
+sidebartitle: 冰河标日
+email: icer@icerdesign.com
+description: 冰河魔法师的标准日本语学习日志
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "http://japan.icerdesign.com" # the base hostname & protocol for your site
+
+# User settings
+username: 冰河魔法师
+user_description: C#资深架构师
+twitter_username: wizicer
+github_username:  wizicer
+# gplus_username:  lorem_ipsum
+# disqus_username: lorem_ipsum
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: none
+
+gems:
+  - jekyll-redirect-from
+
+# html minify
+compress_html:
+  clippings: all
+  comments: all
+  endings: []
+  profile: false
+
+# Links to include in menu navigation
+# For external links add external: true
+links:
+  - title: 语法
+    url: /tools/grammar.html
+  - title: 单词
+    url: /tools/wordlist.html
+  # - title: Series
+  #   url: /series
+  # - title: Tags
+  #   url: /tags
+  - title: 关于
+    url: /about/index.html
+
+# exclude my node related stuff
+exclude: ['package.json', 'src', 'node_modules', 'site.vfs', 'Gemfile.lock', 'Gemfile', 'CNAME', 'LICENSE', '*.bat', 'gulpfile.js', 'ionic']
+
+la51_analytics: 17278963
+
+categorythemes:
+  grammar:
+    name: 语法
+    tag: grammar
+    theme: red
+  word:
+    name: 单词
+    tag: word
+    theme: purple
+  class:
+    name: 初级课文
+    tag: class
+    theme: orange
+  notebook:
+    name: 笔记
+    tag: notebook
+  middleclass:
+    name: 中级课文
+    tag: middleclass
+  tools:
+    name: 工具
+    tag: tools
